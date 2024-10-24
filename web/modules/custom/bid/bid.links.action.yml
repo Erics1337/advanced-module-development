@@ -1,0 +1,5 @@
+bid.add_form:
+  route_name: entity.bid.add_form
+  title: 'Add bid'
+  appears_on:
+    - entity.bid.collection

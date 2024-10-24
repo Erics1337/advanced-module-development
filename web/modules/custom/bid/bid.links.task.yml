@@ -1,0 +1,18 @@
+entity.bid.view:
+  title: View
+  route_name: entity.bid.canonical
+  base_route: entity.bid.canonical
+entity.bid.edit_form:
+  title: Edit
+  route_name: entity.bid.edit_form
+  base_route: entity.bid.canonical
+entity.bid.delete_form:
+  title: Delete
+  route_name: entity.bid.delete_form
+  base_route: entity.bid.canonical
+  weight: 10
+entity.bid.collection:
+  title: Bid
+  route_name: entity.bid.collection
+  base_route: system.admin_content
+  weight: 10

@@ -2,3 +2,11 @@ offer_overview_page:
   css:
     theme:
       css/overview.css: {}
+platform:
+  css:
+    theme:
+      css/platform.css: {}
+  dependencies:
+    - core/drupal.ajax
+    - core/jquery
+    - core/drupal

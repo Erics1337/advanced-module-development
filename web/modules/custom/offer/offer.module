@@ -69,3 +69,74 @@ function offer_views_pre_render(ViewExecutable $view) {
     $view->element['#attached']['library'][] = 'offer/offer_overview_page';
   }
 }
+
+/**
+ * Implements hook_page_attachments().
+ */
+function offer_page_attachments(array &$attachments) {
+  $attachments['#attached']['library'][] = 'offer/platform';
+  $attachments['#attached']['library'][] = 'notification/notification';
+}
+
+/**
+ * Add a "offer-detail-page" class to the body on a offer detail page
+ */
+function offer_preprocess_html(&$variables) {
+  $offer = \Drupal::routeMatch()->getParameter('offer');
+  if($offer) {
+    $variables['attributes']['class'][] = 'offer-detail-page';
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update()
+ */
+function offer_offer_update(\Drupal\Core\Entity\EntityInterface $entity) {
+  // content moderation state
+  $currentState =  $entity->get('moderation_state')->getString();
+
+  // original moderation state
+  $originalState = $entity->original->get('moderation_state')->getString();
+
+  // Checks if the offer goes from a published to an expired state then loops over all the bids on the offer 
+  // and creates a notification entity for every bidder
+  if(($originalState == 'published') && ($currentState == 'expired')) {
+    $bids = $entity->getOfferBids();
+    foreach($bids as $bid) {
+      Notification::create([
+        'type' => 'expired',
+        'user_id' => ['target_id' => $bid->getOwnerId()],
+        'offer_id' => ['target_id' => $entity->id()]
+      ])->save();
+    }
+  }
+}
+
+/**
+ * Implements hook_user_login()
+ */
+function offer_user_login($account) {
+  $middleware = \Drupal::service('http_middleware.redirect_users_after_login');
+  $response = new RedirectResponse("/");
+  $middleware->setRedirectResponse($response);
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function offer_theme_suggestions_user(array $variables) {
+  return [
+    'user__' . $variables['elements']['#view_mode']
+  ];
+}
+
+/**
+ * Prepares variables for templates.
+ * implements hook_preprocess_HOOK()
+ */
+function template_preprocess_offer_userprofile(array &$variables)
+{
+  foreach (Element::children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+}
